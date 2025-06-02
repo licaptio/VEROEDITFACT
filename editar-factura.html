@@ -5,70 +5,112 @@
   <meta charset="UTF-8" />
   <title>Editar Factura</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f2f4f7;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #00264d;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      position: relative;
-    }
-    header h1 {
-      margin: 0;
-    }
-    header .left-button {
-      position: absolute;
-      left: 20px;
-      top: 20px;
-      background-color: #fff;
-      color: #00264d;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      border: none;
-    }
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f2f4f7;
+    margin: 0;
+    padding: 0;
+  }
+
+  header {
+    background-color: #00264d;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+  }
+
+  header h1 {
+    margin: 0;
+  }
+
+  header .left-button {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    background-color: #fff;
+    color: #00264d;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+  }
+
+  .contenedor {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  label {
+    display: block;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #00264d;
+    font-size: 16px;
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    font-size: 17px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    height: 140px;
+    resize: vertical;
+  }
+
+  button.guardar {
+    display: block;
+    width: 100%;
+    margin-top: 30px;
+    padding: 18px;
+    font-size: 18px;
+    background-color: #00264d;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 600px) {
     .contenedor {
-      max-width: 800px;
-      margin: 40px auto;
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin: 20px;
     }
+
     label {
-      display: block;
-      margin-top: 20px;
-      font-weight: bold;
-      color: #00264d;
-    }
-    select, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    button.guardar {
-      display: block;
-      width: 100%;
-      margin-top: 30px;
-      padding: 15px;
       font-size: 18px;
-      background-color: #00264d;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
     }
-  </style>
+
+    select,
+    textarea {
+      font-size: 18px;
+      padding: 16px;
+    }
+
+    textarea {
+      height: 180px;
+    }
+
+    button.guardar {
+      padding: 20px;
+      font-size: 20px;
+    }
+  }
+</style>
+
 </head>
 <body>
   <header>
@@ -121,32 +163,36 @@
       }
 
       document.getElementById('factura_fisicamente').value = data.factura_fisicamente || 'NO';
-      document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || '';
       document.getElementById('factura_pagada').value = data.factura_pagada || 'NO';
+document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || 'SIN COMENTARIOS';
+
     }
 
-    async function guardarCambios() {
-      const updates = {
-        factura_fisicamente: document.getElementById('factura_fisicamente').value,
-        comentario_factura_fisica: document.getElementById('comentario_factura_fisica').value,
-        factura_pagada: document.getElementById('factura_pagada').value,
-      };
+async function guardarCambios() {
+  const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
 
-      const { error } = await supabase
-        .from('deuda_pddprotec25')
-        .update(updates)
-        .eq('uuid', uuid);
+  const updates = {
+    factura_fisicamente: document.getElementById('factura_fisicamente').value,
+    comentario_factura_fisica: comentario,
+    factura_pagada: document.getElementById('factura_pagada').value,
+  };
 
-      const mensaje = document.getElementById('mensaje');
-      if (error) {
-        mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
-      } else {
-        mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
-        setTimeout(() => {
-window.location.href = "index.html";
-        }, 2000);
-      }
-    }
+  const { error } = await supabase
+    .from('deuda_pddprotec25')
+    .update(updates)
+    .eq('uuid', uuid);
+
+  const mensaje = document.getElementById('mensaje');
+  if (error) {
+    mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
+  } else {
+    mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 2000);
+  }
+}
+
 
     cargarDatos();
   </script>
