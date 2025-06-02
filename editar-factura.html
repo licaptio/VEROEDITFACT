@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Editar Factura</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f4f7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #00264d;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    header h1 {
+      margin: 0;
+    }
+    header .left-button {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background-color: #fff;
+      color: #00264d;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+    }
+    .contenedor {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #00264d;
+    }
+    select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button.guardar {
+      display: block;
+      width: 100%;
+      margin-top: 30px;
+      padding: 15px;
+      font-size: 18px;
+      background-color: #00264d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button class="left-button" onclick="window.history.back()">← Editar</button>
+    <h1 onclick="window.location.href='VERFACTURA.html'" style="cursor:pointer;">Página Principal</h1>
+  </header>
+  <div class="contenedor">
+    <label>¿Factura física disponible?</label>
+    <select id="factura_fisicamente">
+      <option value="NO">NO</option>
+      <option value="SI">SI</option>
+    </select>
+
+    <label>¿Tienes algún comentario de la Factura?</label>
+    <textarea id="comentario_factura_fisica" rows="3"></textarea>
+
+    <label>¿La Factura ya fue Pagada?</label>
+    <select id="factura_pagada">
+      <option value="NO">NO</option>
+      <option value="SI">SI</option>
+    </select>
+
+    <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
+    <div id="mensaje"></div>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://cvpbtjlupswbyxenugpz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2cGJ0amx1cHN3Ynl4ZW51Z3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDIxOTQsImV4cCI6MjA2MzI3ODE5NH0.iiJsYM3TtaGPdeCtPcEXwAz3LfFc1uJGECEvOErvrqY'
+    );
+
+    const params = new URLSearchParams(window.location.search);
+    const uuid = params.get('uuid');
+    if (!uuid) {
+      alert("No se proporcionó UUID.");
+      window.location.href = "VERFACTURA.html";
+    }
+
+    async function cargarDatos() {
+      const { data, error } = await supabase
+        .from('deuda_pddprotec25')
+        .select('*')
+        .eq('uuid', uuid)
+        .single();
+
+      if (error || !data) {
+        alert("Factura no encontrada.");
+        return;
+      }
+
+      document.getElementById('factura_fisicamente').value = data.factura_fisicamente || 'NO';
+      document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || '';
+      document.getElementById('factura_pagada').value = data.factura_pagada || 'NO';
+    }
+
+    async function guardarCambios() {
+      const updates = {
+        factura_fisicamente: document.getElementById('factura_fisicamente').value,
+        comentario_factura_fisica: document.getElementById('comentario_factura_fisica').value,
+        factura_pagada: document.getElementById('factura_pagada').value,
+      };
+
+      const { error } = await supabase
+        .from('deuda_pddprotec25')
+        .update(updates)
+        .eq('uuid', uuid);
+
+      const mensaje = document.getElementById('mensaje');
+      if (error) {
+        mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
+      } else {
+        mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
+        setTimeout(() => {
+window.location.href = "index.html";
+        }, 2000);
+      }
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>

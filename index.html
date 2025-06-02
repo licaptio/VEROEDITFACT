@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta de Factura por UUID</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    .contenedor {
+      max-width: 700px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 20px;
+      text-align: center;
+      color: #003366;
+      margin-bottom: 20px;
+    }
+
+    .campo {
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    input::placeholder {
+      color: #999;
+    }
+
+    .acciones {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #003366;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 1 1 45%;
+      min-width: 120px;
+    }
+
+    .resumen {
+      background: #f0f4f8;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    .resumen p {
+      margin: 6px 0;
+    }
+
+    .resumen strong {
+      color: #003366;
+    }
+
+    pre {
+      background-color: #eef3f7;
+      padding: 10px;
+      font-size: 13px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Consulta de Factura por UUID</h1>
+    <div class="campo">
+      <input type="text" id="qrInput" placeholder="📷 QR SAT (Pega aquí el contenido)" oninput="extraerUUID()">
+    </div>
+    <div class="campo">
+      <input type="text" id="uuidInput" placeholder="🔍 UUID de la factura (36 caracteres)">
+    </div>
+    <div class="acciones">
+      <button onclick="buscarFactura()">Buscar</button>
+      <button id="editarBtn" style="display:none;">✏️ Editar</button>
+    </div>
+    <div id="resumenUUID" class="resumen"></div>
+  </div>
+
+  <script>
+    const supabase = window.supabase.createClient(
+      'https://cvpbtjlupswbyxenugpz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2cGJ0amx1cHN3Ynl4ZW51Z3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDIxOTQsImV4cCI6MjA2MzI3ODE5NH0.iiJsYM3TtaGPdeCtPcEXwAz3LfFc1uJGECEvOErvrqY'
+    );
+
+    let uuidActual = '';
+
+    function extraerUUID() {
+      const texto = document.getElementById('qrInput').value;
+      const match = texto.match(/[?&]id=([a-f0-9-]{36})/i);
+      if (match) {
+        document.getElementById('uuidInput').value = match[1];
+      }
+    }
+
+    const formatter = new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN'
+    });
+
+    async function buscarFactura() {
+      let uuid = document.getElementById('uuidInput').value.trim();
+      uuidActual = uuid;
+
+      const contenedor = document.getElementById('resumenUUID');
+      const editarBtn = document.getElementById('editarBtn');
+      contenedor.innerHTML = '';
+      editarBtn.style.display = 'none';
+
+      if (!uuid) {
+        contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('deuda_pddprotec25')
+        .select('*')
+        .eq('uuid', uuid)
+        .limit(1);
+
+      if (error || !data || data.length === 0) {
+        contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
+        return;
+      }
+
+      const f = data[0];
+      contenedor.innerHTML = `
+        <p><strong>UUID:</strong> ${f.uuid}</p>
+        <p><strong>Factura:</strong> ${f.factura}</p>
+        <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
+        <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
+        <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
+        <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
+        <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+        <p><strong>Concepto:</strong></p>
+        <pre>${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
+      `;
+      editarBtn.style.display = 'inline-block';
+      editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
+    }
+  </script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('uuidInput').value = '';
+    document.getElementById('qrInput')?.value = '';
+  });
+</script>
+
+
+</body>
+</html>
