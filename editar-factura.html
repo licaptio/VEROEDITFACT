@@ -130,6 +130,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const uuid = params.get('uuid');
+    console.log("UUID obtenido:", uuid);
     if (!uuid) {
       alert("No se proporcionó UUID.");
       window.location.href = "VERFACTURA.html";
