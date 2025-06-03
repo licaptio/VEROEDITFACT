@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Editar Factura</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <style>
@@ -90,12 +91,56 @@
       cursor: pointer;
     }
 
-    @media (max-width: 600px) {
-      .contenedor {
-        padding: 20px;
-        margin: 20px;
-      }
-    }
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .contenedor {
+    padding: 15px;
+    margin: 10px;
+  }
+
+  label {
+    font-size: 15px;
+  }
+
+  select, textarea, input[type="file"] {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  button.guardar {
+    font-size: 16px;
+    padding: 14px;
+  }
+
+  header {
+    padding: 15px;
+  }
+
+  header h1 {
+    font-size: 18px;
+  }
+
+  header .left-button {
+    top: 15px;
+    left: 10px;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  #preview img {
+    max-width: 80px;
+  }
+#preview {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+
+}
+
   </style>
 </head>
 <body>
@@ -290,7 +335,7 @@ const fotosFinales = [...urlsFotos, ...nuevasUrls];
 
 const updates = { factura_fisicamente: fisica, comentario_factura_fisica: comentario, fotos: fotosFinales };
 
-
+console.log("Actualizando con:", updates, "para uuid:", uuid);
       const { error } = await supabase.from('deuda_pddprotec25').update(updates).eq('uuid', uuid);
 
       const mensaje = document.getElementById('mensaje');

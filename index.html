@@ -83,6 +83,18 @@
       color: #003366;
     }
 
+    .concepto-box {
+  background-color: #eef3f7;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 300px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
     pre {
       background-color: #eef3f7;
       padding: 10px;
@@ -164,7 +176,7 @@ async function buscarFactura() {
     <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
     <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
     <p><strong>Concepto:</strong></p>
-    <pre>${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
+    <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
   `;
 
   // Mostrar fotos si existen
