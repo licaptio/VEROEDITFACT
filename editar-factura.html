@@ -266,10 +266,9 @@ const nuevasUrls = [];
 for (let i = 0; i < fotosSeleccionadas.length; i++) {
   const archivo = fotosSeleccionadas[i];
   if (!archivo || !archivo.type.startsWith('image/')) continue;
-
   const extension = archivo.name.split('.').pop().toLowerCase();
-  const nombreBase = `${uuid}-${i}-${Date.now()}`;
-  const nombreSeguro = "public/" + nombreBase.replace(/[^a-zA-Z0-9_-]/g, "_") + "." + extension;
+const nombreSeguro = `public/${uuid}-${i}-${Date.now()}`.replace(/[^a-zA-Z0-9/_-]/g, "_") + "." + extension;
+   console.log("Subiendo a:", nombreSeguro); // <-- ESTA LÍNEA
   const { error: uploadError } = await supabase.storage
     .from("fotos-facturas")
     .upload(nombreSeguro, archivo, {
