@@ -113,12 +113,12 @@
     <div class="campo">
       <input type="text" id="uuidInput" placeholder="🔍 UUID de la factura (36 caracteres)">
     </div>
-    <div class="acciones">
-      <button onclick="buscarFactura()">Buscar</button>
-      <button id="editarBtn" style="display:none;">✏️ Editar</button>
-    </div>
-    <div id="resumenUUID" class="resumen"></div>
-  </div>
+<div class="acciones">
+  <button onclick="buscarFactura()">Buscar</button>
+  <button id="editarBtn" style="display:none;">✏️ Editar</button>
+  <button onclick="limpiarCampos()">Limpiar</button>
+</div>
+
 
   <script>
     const supabase = window.supabase.createClient(
@@ -193,10 +193,28 @@ async function buscarFactura() {
 
   </script>
 <script>
-  window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('uuidInput').value = '';
+  const qr = document.getElementById('qrInput');
+  if (qr) {
+    qr.value = '';
+    qr.focus(); // pone el cursor directamente ahí al cargar la página
+  }
+});
+
+<script>
+  function limpiarCampos() {
+    document.getElementById('qrInput').value = '';
     document.getElementById('uuidInput').value = '';
-    document.getElementById('qrInput')?.value = '';
-  });
+    document.getElementById('resumenUUID').innerHTML = '';
+    document.getElementById('editarBtn').style.display = 'none';
+    document.getElementById('qrInput').focus();
+  }
+</script>
+
+
+
+
 </script>
 
 
