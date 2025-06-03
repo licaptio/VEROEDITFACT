@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,7 +83,7 @@
       color: #003366;
     }
 
-.concepto-box {
+    .concepto-box {
   background-color: #eef3f7;
   padding: 10px;
   font-size: 13px;
@@ -90,12 +91,9 @@
   overflow-x: auto;
   overflow-y: auto;
   max-height: 300px;
-  min-height: 60px;
-  width: 100%;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
-
 
     pre {
       background-color: #eef3f7;
@@ -115,14 +113,12 @@
     <div class="campo">
       <input type="text" id="uuidInput" placeholder="🔍 UUID de la factura (36 caracteres)">
     </div>
-    <div class="acciones">
-      <button onclick="buscarFactura()">Buscar</button>
-      <button id="editarBtn" style="display:none;">✏️ Editar</button>
-      <button onclick="limpiarCampos()">Limpiar</button>
-    </div>
+<div class="acciones">
+  <button onclick="buscarFactura()">Buscar</button>
+  <button id="editarBtn" style="display:none;">✏️ Editar</button>
+  <button onclick="limpiarCampos()">Limpiar</button>
+</div>
 
-    <div id="resumenUUID" class="resumen"></div>
-  </div>
 
   <script>
     const supabase = window.supabase.createClient(
@@ -145,71 +141,64 @@
       currency: 'MXN'
     });
 
-    async function buscarFactura() {
-      let uuid = document.getElementById('uuidInput').value.trim();
-      uuidActual = uuid;
+async function buscarFactura() {
+  let uuid = document.getElementById('uuidInput').value.trim();
+  uuidActual = uuid;
 
-      const contenedor = document.getElementById('resumenUUID');
-      const editarBtn = document.getElementById('editarBtn');
-      contenedor.innerHTML = '';
-      editarBtn.style.display = 'none';
+  const contenedor = document.getElementById('resumenUUID');
+  const editarBtn = document.getElementById('editarBtn');
+  contenedor.innerHTML = '';
+  editarBtn.style.display = 'none';
 
-      if (!uuid) {
-        contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
-        return;
-      }
+  if (!uuid) {
+    contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
+    return;
+  }
 
-      const { data, error } = await supabase
-        .from('deuda_pddprotec25')
-        .select('*')
-        .eq('uuid', uuid)
-        .limit(1);
+  const { data, error } = await supabase
+    .from('deuda_pddprotec25')
+    .select('*')
+    .eq('uuid', uuid)
+    .limit(1);
 
-      if (error || !data || data.length === 0) {
-        contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
-        return;
-      }
+  if (error || !data || data.length === 0) {
+    contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
+    return;
+  }
 
-      const f = data[0];
-      contenedor.innerHTML = `
-        <p><strong>UUID:</strong> ${f.uuid}</p>
-        <p><strong>Factura:</strong> ${f.factura}</p>
-        <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
-        <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
-        <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
-        <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
-        <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
-        <p><strong>Concepto:</strong></p>
-        <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
-      `;
+  const f = data[0];
+  contenedor.innerHTML = `
+    <p><strong>UUID:</strong> ${f.uuid}</p>
+    <p><strong>Factura:</strong> ${f.factura}</p>
+    <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
+    <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
+    <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
+    <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
+    <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+    <p><strong>Concepto:</strong></p>
+    <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
+  `;
 
-      if (f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0) {
-        contenedor.innerHTML += `<p><strong>📁 Documentos:</strong></p>`;
-        f.fotos.forEach((url, i) => {
-          contenedor.innerHTML += `<p><a href="${url}" target="_blank">📷 Foto ${i + 1}</a></p>`;
-        });
-      }
-
-      editarBtn.style.display = 'inline-block';
-      editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
-    }
-
-    function limpiarCampos() {
-      document.getElementById('qrInput').value = '';
-      document.getElementById('uuidInput').value = '';
-      document.getElementById('resumenUUID').innerHTML = '';
-      document.getElementById('editarBtn').style.display = 'none';
-      document.getElementById('qrInput').focus();
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('uuidInput').value = '';
-      const qr = document.getElementById('qrInput');
-      if (qr) {
-        qr.value = '';
-        qr.focus(); // al iniciar, espera entrada directa
-      }
+  // Mostrar fotos si existen
+  if (f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0) {
+    contenedor.innerHTML += `<p><strong>📁 Documentos:</strong></p>`;
+    f.fotos.forEach((url, i) => {
+      contenedor.innerHTML += `<p><a href="${url}" target="_blank">📷 Foto ${i + 1}</a></p>`;
     });
+  }
+
+  editarBtn.style.display = 'inline-block';
+  editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
+}
+
   </script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('uuidInput').value = '';
+    document.getElementById('qrInput')?.value = '';
+  });
+</script>
+
+
 </body>
 </html>
