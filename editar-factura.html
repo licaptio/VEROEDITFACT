@@ -269,8 +269,7 @@ for (let i = 0; i < fotosSeleccionadas.length; i++) {
 
   const extension = archivo.name.split('.').pop().toLowerCase();
   const nombreBase = `${uuid}-${i}-${Date.now()}`;
-  const nombreSeguro = nombreBase.replace(/[^a-zA-Z0-9_-]/g, "_") + "." + extension;
-
+  const nombreSeguro = "public/" + nombreBase.replace(/[^a-zA-Z0-9_-]/g, "_") + "." + extension;
   const { error: uploadError } = await supabase.storage
     .from("fotos-facturas")
     .upload(nombreSeguro, archivo, {
