@@ -132,13 +132,24 @@
 
     let uuidActual = '';
 
-    function extraerUUID() {
-      const texto = document.getElementById('qrInput').value;
-      const match = texto.match(/[?&]id=([a-f0-9-]{36})/i);
-      if (match) {
-        document.getElementById('uuidInput').value = match[1];
-      }
-    }
+function extraerUUID() {
+  const texto = document.getElementById('qrInput').value.trim();
+  
+  // Detectar UUID en URL estilo SAT
+  const match = texto.match(/[?&]id=([a-f0-9-]{36})/i);
+  if (match) {
+    document.getElementById('uuidInput').value = match[1];
+    return;
+  }
+
+  // Detectar si solo pegaron el UUID directamente
+  const directo = texto.match(/^([a-f0-9-]{36})$/i);
+  if (directo) {
+    document.getElementById('uuidInput').value = directo[1];
+    return;
+  }
+}
+
 
     const formatter = new Intl.NumberFormat('es-MX', {
       style: 'currency',
@@ -202,14 +213,23 @@
       document.getElementById('qrInput').focus();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('uuidInput').value = '';
-      const qr = document.getElementById('qrInput');
-      if (qr) {
-        qr.value = '';
-        qr.focus(); // al iniciar, espera entrada directa
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('uuidInput').value = '';
+  const qr = document.getElementById('qrInput');
+  if (qr) {
+    qr.value = '';
+    qr.focus();
+
+    // Aquí mover la línea para asegurar que el input ya existe
+    qr.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        extraerUUID();
+        document.getElementById('uuidInput').focus();
       }
     });
+  }
+});
+
   </script>
 </body>
 </html>
