@@ -135,111 +135,147 @@
       window.location.href = "VERFACTURA.html";
     }
 
-    let urlsFotos = [];
-    let fotosSeleccionadas = [];
+    let facturaActual = null;
+let urlsFotos = [];            // fotos ya guardadas en la base
+let fotosSeleccionadas = [];   // nuevas fotos por subir
 
-    async function cargarDatos() {
-      const { data, error } = await supabase
-        .from('deuda_pddprotec25')
-        .select('*')
-        .eq('uuid', uuid)
-        .single();
+async function cargarDatos() {
+  const { data, error } = await supabase
+    .from('deuda_pddprotec25')
+    .select('*')
+    .eq('uuid', uuid)
+    .single();
 
-      if (error || !data) {
-        alert("Factura no encontrada.");
-        return;
-      }
+  facturaActual = data;
 
-      document.getElementById('factura_fisicamente').value = data.factura_fisicamente || 'NO';
-      document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || 'SIN COMENTARIOS';
+  if (error || !data) {
+    alert("Factura no encontrada.");
+    return;
+  }
 
-      if (data.fotos && Array.isArray(data.fotos)) {
-        const contenedor = document.getElementById("preview");
-        data.fotos.forEach(url => {
-          const img = document.createElement("img");
-          img.src = url;
-          contenedor.appendChild(img);
-        });
-      }
-    }
+  document.getElementById('factura_fisicamente').value = data.factura_fisicamente || 'NO';
+  document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || 'SIN COMENTARIOS';
 
-    function agregarFoto() {
-      const input = document.getElementById("fotos");
-      const archivos = input.files;
-      if (!archivos.length) return;
+  // Guardar las URLs originales para conservarlas si no se eliminan
+  urlsFotos = data.fotos ? [...data.fotos] : [];
 
-      const archivo = archivos[0];
-      fotosSeleccionadas.push(archivo);
-      mostrarFotosTemporal();
-      input.value = "";
-    }
+  mostrarFotosTemporal();
+}
 
-    function mostrarFotosTemporal() {
-      const contenedor = document.getElementById("preview");
-      contenedor.innerHTML = "";
+function mostrarFotosTemporal() {
+  const contenedor = document.getElementById("preview");
+  contenedor.innerHTML = "";
 
-      fotosSeleccionadas.forEach((foto, index) => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const cont = document.createElement("div");
-          cont.style.position = "relative";
-          cont.style.display = "inline-block";
+  // Mostrar fotos guardadas en Supabase (urls)
+  urlsFotos.forEach((url, index) => {
+    const cont = document.createElement("div");
+    cont.style.position = "relative";
+    cont.style.display = "inline-block";
 
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.style.maxWidth = "100px";
-          img.style.border = "1px solid #ccc";
-          img.style.borderRadius = "6px";
-          img.style.marginRight = "5px";
+    const img = document.createElement("img");
+    img.src = url;
+    img.style.maxWidth = "100px";
+    img.style.border = "1px solid #ccc";
+    img.style.borderRadius = "6px";
+    img.style.marginRight = "5px";
 
-          const btn = document.createElement("span");
-          btn.innerHTML = "❌";
-          btn.style.position = "absolute";
-          btn.style.top = "-8px";
-          btn.style.right = "-8px";
-          btn.style.background = "red";
-          btn.style.color = "white";
-          btn.style.borderRadius = "50%";
-          btn.style.cursor = "pointer";
-          btn.style.padding = "2px 6px";
-          btn.onclick = () => {
-            fotosSeleccionadas.splice(index, 1);
-            mostrarFotosTemporal();
-          };
+const btn = document.createElement("span");
+btn.innerHTML = "❌";
+btn.style.position = "absolute";
+btn.style.top = "-8px";
+btn.style.right = "-8px";
+btn.style.background = "red";
+btn.style.color = "white";
+btn.style.borderRadius = "50%";
+btn.style.cursor = "pointer";
+btn.style.padding = "2px 6px";
 
-          cont.appendChild(img);
-          cont.appendChild(btn);
-          contenedor.appendChild(cont);
-        };
-        reader.readAsDataURL(foto);
-      });
-    }
+btn.onclick = async () => {
+  const ruta = url.split("/").slice(7).join("/");  // obtiene fotos-facturas/archivo.jpg
+  const { error } = await supabase.storage.from("fotos-facturas").remove([ruta]);
+
+  if (!error) {
+    urlsFotos.splice(index, 1);
+    mostrarFotosTemporal();
+  } else {
+    alert("❌ No se pudo eliminar del bucket.");
+  }
+};
+
+
+    cont.appendChild(img);
+    cont.appendChild(btn);
+    contenedor.appendChild(cont);
+  });
+
+  // Mostrar fotos nuevas seleccionadas (aún no subidas)
+  fotosSeleccionadas.forEach((foto, index) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const cont = document.createElement("div");
+      cont.style.position = "relative";
+      cont.style.display = "inline-block";
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.style.maxWidth = "100px";
+      img.style.border = "1px solid #ccc";
+      img.style.borderRadius = "6px";
+      img.style.marginRight = "5px";
+
+      const btn = document.createElement("span");
+      btn.innerHTML = "❌";
+      btn.style.position = "absolute";
+      btn.style.top = "-8px";
+      btn.style.right = "-8px";
+      btn.style.background = "red";
+      btn.style.color = "white";
+      btn.style.borderRadius = "50%";
+      btn.style.cursor = "pointer";
+      btn.style.padding = "2px 6px";
+      btn.onclick = () => {
+        fotosSeleccionadas.splice(index, 1); // eliminar archivo
+        mostrarFotosTemporal();
+      };
+
+      cont.appendChild(img);
+      cont.appendChild(btn);
+      contenedor.appendChild(cont);
+    };
+    reader.readAsDataURL(foto);
+  });
+}
+
 
     async function guardarCambios() {
       const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
       const fisica = document.getElementById('factura_fisicamente').value;
       const bucket = "fotos-facturas";
-      urlsFotos = [];
+const nuevasUrls = [];
 
-      for (let i = 0; i < fotosSeleccionadas.length; i++) {
-        const archivo = fotosSeleccionadas[i];
-        const nombre = `${uuid}-${i}-${Date.now()}.jpg`;
-        const { error: uploadError } = await supabase.storage.from(bucket).upload(nombre, archivo, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: archivo.type
-        });
+for (let i = 0; i < fotosSeleccionadas.length; i++) {
+  const archivo = fotosSeleccionadas[i];
+  const nombre = `${uuid}-${i}-${Date.now()}.jpg`;
+  const { error: uploadError } = await supabase.storage.from("fotos-facturas").upload(nombre, archivo, {
+    cacheControl: '3600',
+    upsert: false,
+    contentType: archivo.type
+  });
 
-        if (!uploadError) {
-          const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(nombre);
-          urlsFotos.push(publicUrl.publicUrl);
-        }
-      }
+  if (!uploadError) {
+    const { data: publicUrl } = supabase.storage.from("fotos-facturas").getPublicUrl(nombre);
+    nuevasUrls.push(publicUrl.publicUrl);
+  }
+}
+
+// Mezcla las fotos anteriores que no se eliminaron con las nuevas
+const fotosFinales = [...urlsFotos, ...nuevasUrls];
+
 
       const updates = {
         factura_fisicamente: fisica,
         comentario_factura_fisica: comentario,
-        fotos: urlsFotos.length > 0 ? urlsFotos : undefined
+fotos: fotosFinales
       };
 
       const { error } = await supabase.from('deuda_pddprotec25').update(updates).eq('uuid', uuid);
