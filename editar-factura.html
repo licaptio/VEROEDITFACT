@@ -115,7 +115,7 @@
     <textarea id="comentario_factura_fisica" rows="3"></textarea>
 
     <label>Agregar foto</label>
-    <input type="file" accept="image/*" id="fotos" onchange="agregarFoto()" />
+    <input type="file" id="fotos" />
     <div id="preview" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
 
     <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
@@ -138,6 +138,16 @@
     let facturaActual = null;
 let urlsFotos = [];            // fotos ya guardadas en la base
 let fotosSeleccionadas = [];   // nuevas fotos por subir
+function agregarFoto() {
+  const input = document.getElementById("fotos");
+  const archivos = input.files;
+  if (!archivos.length) return;
+
+  const archivo = archivos[0];
+  fotosSeleccionadas.push(archivo);
+  mostrarFotosTemporal();
+  input.value = "";
+}
 
 async function cargarDatos() {
   const { data, error } = await supabase
@@ -272,7 +282,8 @@ for (let i = 0; i < fotosSeleccionadas.length; i++) {
 const fotosFinales = [...urlsFotos, ...nuevasUrls];
 
 
-const updates = { uuid, factura_fisicamente: fisica, comentario_factura_fisica: comentario, fotos: fotosFinales };
+const updates = { factura_fisicamente: fisica, comentario_factura_fisica: comentario, fotos: fotosFinales };
+
 
       const { error } = await supabase.from('deuda_pddprotec25').update(updates).eq('uuid', uuid);
 
@@ -288,6 +299,8 @@ const updates = { uuid, factura_fisicamente: fisica, comentario_factura_fisica: 
     }
 
     cargarDatos();
+  document.getElementById("fotos").addEventListener("change", agregarFoto);
+
   </script>
 </body>
 </html>
