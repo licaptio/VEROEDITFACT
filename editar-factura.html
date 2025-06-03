@@ -265,15 +265,22 @@ const nuevasUrls = [];
 
 for (let i = 0; i < fotosSeleccionadas.length; i++) {
   const archivo = fotosSeleccionadas[i];
-  const nombre = `${uuid}-${i}-${Date.now()}.jpg`;
-  const { error: uploadError } = await supabase.storage.from("fotos-facturas").upload(nombre, archivo, {
-    cacheControl: '3600',
-    upsert: true,
-    contentType: archivo.type
-  });
+  if (!archivo || !archivo.type.startsWith('image/')) continue;
+
+  const extension = archivo.name.split('.').pop().toLowerCase();
+  const nombreBase = `${uuid}-${i}-${Date.now()}`;
+  const nombreSeguro = nombreBase.replace(/[^a-zA-Z0-9_-]/g, "_") + "." + extension;
+
+  const { error: uploadError } = await supabase.storage
+    .from("fotos-facturas")
+    .upload(nombreSeguro, archivo, {
+      cacheControl: '3600',
+      upsert: true,
+      contentType: archivo.type
+    });
 
   if (!uploadError) {
-    const { data: publicUrl } = supabase.storage.from("fotos-facturas").getPublicUrl(nombre);
+    const { data: publicUrl } = supabase.storage.from("fotos-facturas").getPublicUrl(nombreSeguro);
     nuevasUrls.push(publicUrl.publicUrl);
   }
 }
