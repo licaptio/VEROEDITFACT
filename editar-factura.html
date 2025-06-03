@@ -272,11 +272,7 @@ for (let i = 0; i < fotosSeleccionadas.length; i++) {
 const fotosFinales = [...urlsFotos, ...nuevasUrls];
 
 
-      const updates = {
-        factura_fisicamente: fisica,
-        comentario_factura_fisica: comentario,
-fotos: fotosFinales
-      };
+const updates = { uuid, factura_fisicamente: fisica, comentario_factura_fisica: comentario, fotos: fotosFinales };
 
       const { error } = await supabase.from('deuda_pddprotec25').update(updates).eq('uuid', uuid);
 
