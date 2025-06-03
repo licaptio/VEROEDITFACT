@@ -268,7 +268,7 @@ for (let i = 0; i < fotosSeleccionadas.length; i++) {
   const nombre = `${uuid}-${i}-${Date.now()}.jpg`;
   const { error: uploadError } = await supabase.storage.from("fotos-facturas").upload(nombre, archivo, {
     cacheControl: '3600',
-    upsert: false,
+    upsert: true,
     contentType: archivo.type
   });
 
