@@ -1,122 +1,109 @@
-<label>¿La Factura ya fue Pagada?</label>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <title>Editar Factura</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f2f4f7;
-    margin: 0;
-    padding: 0;
-  }
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f4f7;
+      margin: 0;
+      padding: 0;
+    }
 
-  header {
-    background-color: #00264d;
-    color: white;
-    padding: 20px;
-    text-align: center;
-    position: relative;
-  }
-
-  header h1 {
-    margin: 0;
-  }
-
-  header .left-button {
-    position: absolute;
-    left: 20px;
-    top: 20px;
-    background-color: #fff;
-    color: #00264d;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    border: none;
-  }
-
-  .contenedor {
-    max-width: 800px;
-    margin: 40px auto;
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  label {
-    display: block;
-    margin-top: 20px;
-    font-weight: bold;
-    color: #00264d;
-    font-size: 16px;
-  }
-
-  select,
-  textarea {
-    width: 100%;
-    padding: 14px;
-    margin-top: 8px;
-    font-size: 17px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-  }
-
-  textarea {
-    height: 140px;
-    resize: vertical;
-  }
-
-  button.guardar {
-    display: block;
-    width: 100%;
-    margin-top: 30px;
-    padding: 18px;
-    font-size: 18px;
-    background-color: #00264d;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  @media (max-width: 600px) {
-    .contenedor {
+    header {
+      background-color: #00264d;
+      color: white;
       padding: 20px;
-      margin: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    header h1 {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    header .left-button {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      background-color: #fff;
+      color: #00264d;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+    }
+
+    .contenedor {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     label {
-      font-size: 18px;
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #00264d;
+      font-size: 16px;
     }
 
-    select,
-    textarea {
-      font-size: 18px;
-      padding: 16px;
+    select, textarea, input[type="file"] {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      font-size: 17px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
     }
 
     textarea {
-      height: 180px;
+      height: 140px;
+      resize: vertical;
+    }
+
+    #preview img {
+      max-width: 100px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
     button.guardar {
-      padding: 20px;
-      font-size: 20px;
+      display: block;
+      width: 100%;
+      margin-top: 30px;
+      padding: 18px;
+      font-size: 18px;
+      background-color: #00264d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-  }
-</style>
 
+    @media (max-width: 600px) {
+      .contenedor {
+        padding: 20px;
+        margin: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
     <button class="left-button" onclick="window.history.back()">← Editar</button>
-    <h1 onclick="window.location.href='VERFACTURA.html'" style="cursor:pointer;">Página Principal</h1>
+    <h1 onclick="window.location.href='VERFACTURA.html'">Página Principal</h1>
   </header>
+
   <div class="contenedor">
     <label>¿Factura física disponible?</label>
     <select id="factura_fisicamente">
@@ -127,6 +114,10 @@
     <label>¿Tienes algún comentario de la Factura?</label>
     <textarea id="comentario_factura_fisica" rows="3"></textarea>
 
+    <label>Subir hasta 3 fotos</label>
+    <input type="file" accept="image/*" multiple id="fotos" onchange="mostrarVistaPrevia()" />
+    <div id="preview"></div>
+
     <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
     <div id="mensaje"></div>
   </div>
@@ -134,7 +125,7 @@
   <script>
     const supabase = window.supabase.createClient(
       'https://cvpbtjlupswbyxenugpz.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2cGJ0amx1cHN3Ynl4ZW51Z3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDIxOTQsImV4cCI6MjA2MzI3ODE5NH0.iiJsYM3TtaGPdeCtPcEXwAz3LfFc1uJGECEvOErvrqY'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
     );
 
     const params = new URLSearchParams(window.location.search);
@@ -143,6 +134,8 @@
       alert("No se proporcionó UUID.");
       window.location.href = "VERFACTURA.html";
     }
+
+    let urlsFotos = [];
 
     async function cargarDatos() {
       const { data, error } = await supabase
@@ -157,34 +150,72 @@
       }
 
       document.getElementById('factura_fisicamente').value = data.factura_fisicamente || 'NO';
-document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || 'SIN COMENTARIOS';
+      document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || 'SIN COMENTARIOS';
 
+      if (data.fotos && Array.isArray(data.fotos)) {
+        const contenedor = document.getElementById("preview");
+        data.fotos.forEach(url => {
+          const img = document.createElement("img");
+          img.src = url;
+          contenedor.appendChild(img);
+        });
+      }
     }
 
-async function guardarCambios() {
-  const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
+    function mostrarVistaPrevia() {
+      const contenedor = document.getElementById("preview");
+      contenedor.innerHTML = "";
+      const archivos = document.getElementById("fotos").files;
 
-  const updates = {
-    factura_fisicamente: document.getElementById('factura_fisicamente').value,
-    comentario_factura_fisica: comentario,
-  };
+      for (let i = 0; i < archivos.length && i < 3; i++) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          contenedor.appendChild(img);
+        };
+        reader.readAsDataURL(archivos[i]);
+      }
+    }
 
-  const { error } = await supabase
-    .from('deuda_pddprotec25')
-    .update(updates)
-    .eq('uuid', uuid);
+    async function guardarCambios() {
+      const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
+      const fisica = document.getElementById('factura_fisicamente').value;
+      const archivos = document.getElementById("fotos").files;
+      const bucket = "fotos-facturas"; // <- usa guión, no guión bajo
+      urlsFotos = [];
 
-  const mensaje = document.getElementById('mensaje');
-  if (error) {
-    mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
-  } else {
-    mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 2000);
-  }
-}
+      for (let i = 0; i < archivos.length && i < 3; i++) {
+        const archivo = archivos[i];
+        const nombre = `${uuid}-${i}-${Date.now()}.jpg`;
+        const { error: uploadError } = await supabase.storage.from(bucket).upload(nombre, archivo, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        if (!uploadError) {
+          const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(nombre);
+          urlsFotos.push(publicUrl.publicUrl);
+        }
+      }
 
+      const updates = {
+        factura_fisicamente: fisica,
+        comentario_factura_fisica: comentario,
+        fotos: urlsFotos.length > 0 ? urlsFotos : undefined
+      };
+
+      const { error } = await supabase.from('deuda_pddprotec25').update(updates).eq('uuid', uuid);
+
+      const mensaje = document.getElementById('mensaje');
+      if (error) {
+        mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
+      } else {
+        mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+      }
+    }
 
     cargarDatos();
   </script>

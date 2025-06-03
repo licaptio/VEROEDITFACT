@@ -129,46 +129,56 @@
       currency: 'MXN'
     });
 
-    async function buscarFactura() {
-      let uuid = document.getElementById('uuidInput').value.trim();
-      uuidActual = uuid;
+async function buscarFactura() {
+  let uuid = document.getElementById('uuidInput').value.trim();
+  uuidActual = uuid;
 
-      const contenedor = document.getElementById('resumenUUID');
-      const editarBtn = document.getElementById('editarBtn');
-      contenedor.innerHTML = '';
-      editarBtn.style.display = 'none';
+  const contenedor = document.getElementById('resumenUUID');
+  const editarBtn = document.getElementById('editarBtn');
+  contenedor.innerHTML = '';
+  editarBtn.style.display = 'none';
 
-      if (!uuid) {
-        contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
-        return;
-      }
+  if (!uuid) {
+    contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
+    return;
+  }
 
-      const { data, error } = await supabase
-        .from('deuda_pddprotec25')
-        .select('*')
-        .eq('uuid', uuid)
-        .limit(1);
+  const { data, error } = await supabase
+    .from('deuda_pddprotec25')
+    .select('*')
+    .eq('uuid', uuid)
+    .limit(1);
 
-      if (error || !data || data.length === 0) {
-        contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
-        return;
-      }
+  if (error || !data || data.length === 0) {
+    contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
+    return;
+  }
 
-      const f = data[0];
-      contenedor.innerHTML = `
-        <p><strong>UUID:</strong> ${f.uuid}</p>
-        <p><strong>Factura:</strong> ${f.factura}</p>
-        <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
-        <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
-        <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
-        <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
-        <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
-        <p><strong>Concepto:</strong></p>
-        <pre>${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
-      `;
-      editarBtn.style.display = 'inline-block';
-      editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
-    }
+  const f = data[0];
+  contenedor.innerHTML = `
+    <p><strong>UUID:</strong> ${f.uuid}</p>
+    <p><strong>Factura:</strong> ${f.factura}</p>
+    <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
+    <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
+    <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
+    <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
+    <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+    <p><strong>Concepto:</strong></p>
+    <pre>${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
+  `;
+
+  // Mostrar fotos si existen
+  if (f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0) {
+    contenedor.innerHTML += `<p><strong>📁 Documentos:</strong></p>`;
+    f.fotos.forEach((url, i) => {
+      contenedor.innerHTML += `<p><a href="${url}" target="_blank">📷 Foto ${i + 1}</a></p>`;
+    });
+  }
+
+  editarBtn.style.display = 'inline-block';
+  editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
+}
+
   </script>
 <script>
   window.addEventListener('DOMContentLoaded', () => {
