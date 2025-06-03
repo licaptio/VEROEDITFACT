@@ -1,4 +1,4 @@
-const supabase = window.supabase.createClient(<!DOCTYPE html>
+<!-- Tu HTML completo actualizado con la función guardarCambios en el lugar correcto -->
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -114,19 +114,20 @@ const supabase = window.supabase.createClient(<!DOCTYPE html>
     <label>¿Tienes algún comentario de la Factura?</label>
     <textarea id="comentario_factura_fisica" rows="3"></textarea>
 
-    <label>Subir hasta 3 fotos</label>
-    <input type="file" accept="image/*" multiple id="fotos" onchange="mostrarVistaPrevia()" />
-    <div id="preview"></div>
+    <label>Agregar foto</label>
+    <input type="file" accept="image/*" id="fotos" onchange="agregarFoto()" />
+    <div id="preview" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
 
     <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
     <div id="mensaje"></div>
   </div>
 
   <script>
-const supabase = window.supabase.createClient(
-  'https://cvpbtjlupswbyxenugpz.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2cGJ0amx1cHN3Ynl4ZW51Z3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDIxOTQsImV4cCI6MjA2MzI3ODE5NH0.iiJsYM3TtaGPdeCtPcEXwAz3LfFc1uJGECEvOErvrqY'
-);
+    const supabase = window.supabase.createClient(
+      'https://cvpbtjlupswbyxenugpz.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2cGJ0amx1cHN3Ynl4ZW51Z3B6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3MDIxOTQsImV4cCI6MjA2MzI3ODE5NH0.iiJsYM3TtaGPdeCtPcEXwAz3LfFc1uJGECEvOErvrqY'
+    );
+
     const params = new URLSearchParams(window.location.search);
     const uuid = params.get('uuid');
     if (!uuid) {
@@ -135,6 +136,7 @@ const supabase = window.supabase.createClient(
     }
 
     let urlsFotos = [];
+    let fotosSeleccionadas = [];
 
     async function cargarDatos() {
       const { data, error } = await supabase
@@ -161,36 +163,73 @@ const supabase = window.supabase.createClient(
       }
     }
 
-    function mostrarVistaPrevia() {
+    function agregarFoto() {
+      const input = document.getElementById("fotos");
+      const archivos = input.files;
+      if (!archivos.length) return;
+
+      const archivo = archivos[0];
+      fotosSeleccionadas.push(archivo);
+      mostrarFotosTemporal();
+      input.value = "";
+    }
+
+    function mostrarFotosTemporal() {
       const contenedor = document.getElementById("preview");
       contenedor.innerHTML = "";
-      const archivos = document.getElementById("fotos").files;
 
-      for (let i = 0; i < archivos.length && i < 3; i++) {
+      fotosSeleccionadas.forEach((foto, index) => {
         const reader = new FileReader();
         reader.onload = e => {
+          const cont = document.createElement("div");
+          cont.style.position = "relative";
+          cont.style.display = "inline-block";
+
           const img = document.createElement("img");
           img.src = e.target.result;
-          contenedor.appendChild(img);
+          img.style.maxWidth = "100px";
+          img.style.border = "1px solid #ccc";
+          img.style.borderRadius = "6px";
+          img.style.marginRight = "5px";
+
+          const btn = document.createElement("span");
+          btn.innerHTML = "❌";
+          btn.style.position = "absolute";
+          btn.style.top = "-8px";
+          btn.style.right = "-8px";
+          btn.style.background = "red";
+          btn.style.color = "white";
+          btn.style.borderRadius = "50%";
+          btn.style.cursor = "pointer";
+          btn.style.padding = "2px 6px";
+          btn.onclick = () => {
+            fotosSeleccionadas.splice(index, 1);
+            mostrarFotosTemporal();
+          };
+
+          cont.appendChild(img);
+          cont.appendChild(btn);
+          contenedor.appendChild(cont);
         };
-        reader.readAsDataURL(archivos[i]);
-      }
+        reader.readAsDataURL(foto);
+      });
     }
 
     async function guardarCambios() {
       const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
       const fisica = document.getElementById('factura_fisicamente').value;
-      const archivos = document.getElementById("fotos").files;
-      const bucket = "fotos-facturas"; // <- usa guión, no guión bajo
+      const bucket = "fotos-facturas";
       urlsFotos = [];
 
-      for (let i = 0; i < archivos.length && i < 3; i++) {
-        const archivo = archivos[i];
+      for (let i = 0; i < fotosSeleccionadas.length; i++) {
+        const archivo = fotosSeleccionadas[i];
         const nombre = `${uuid}-${i}-${Date.now()}.jpg`;
         const { error: uploadError } = await supabase.storage.from(bucket).upload(nombre, archivo, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: archivo.type
         });
+
         if (!uploadError) {
           const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(nombre);
           urlsFotos.push(publicUrl.publicUrl);
