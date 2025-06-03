@@ -1,4 +1,4 @@
-
+<label>¿La Factura ya fue Pagada?</label>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -127,12 +127,6 @@
     <label>¿Tienes algún comentario de la Factura?</label>
     <textarea id="comentario_factura_fisica" rows="3"></textarea>
 
-    <label>¿La Factura ya fue Pagada?</label>
-    <select id="factura_pagada">
-      <option value="NO">NO</option>
-      <option value="SI">SI</option>
-    </select>
-
     <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
     <div id="mensaje"></div>
   </div>
@@ -163,7 +157,6 @@
       }
 
       document.getElementById('factura_fisicamente').value = data.factura_fisicamente || 'NO';
-      document.getElementById('factura_pagada').value = data.factura_pagada || 'NO';
 document.getElementById('comentario_factura_fisica').value = data.comentario_factura_fisica || 'SIN COMENTARIOS';
 
     }
@@ -174,7 +167,6 @@ async function guardarCambios() {
   const updates = {
     factura_fisicamente: document.getElementById('factura_fisicamente').value,
     comentario_factura_fisica: comentario,
-    factura_pagada: document.getElementById('factura_pagada').value,
   };
 
   const { error } = await supabase
