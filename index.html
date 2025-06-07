@@ -137,26 +137,10 @@
 function extraerUUID() {
   const texto = document.getElementById('qrInput').value.trim();
 
-  // ✅ Caso 1: URL correcta con ?id=
-  const match = texto.match(/[?&]id=([a-f0-9-]{36})/i);
+  // Buscar un UUID válido en cualquier parte del texto
+  const match = texto.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
   if (match) {
-    document.getElementById('uuidInput').value = match[1];
-    return;
-  }
-
-  // ✅ Caso 2: UUID directo
-  const directo = texto.match(/^([a-f0-9-]{36})$/i);
-  if (directo) {
-    document.getElementById('uuidInput').value = directo[1];
-    return;
-  }
-
-  // ✅ Caso 3: Escáner PC con delimitadores raros (¡ y ')
-  const adaptado = texto.replaceAll("¡", "=").replaceAll("'", "-");
-  const alterno = adaptado.match(/[?&/]id=([a-f0-9-]{36})/i);
-  if (alterno) {
-    document.getElementById('uuidInput').value = alterno[1];
-    return;
+    document.getElementById('uuidInput').value = match[0];
   }
 }
 
