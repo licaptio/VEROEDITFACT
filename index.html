@@ -19,7 +19,7 @@
       margin: auto;
       background-color: #fff;
       padding: 20px;
-      border-radius: 12px;
+      border-radius: 12px;  
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
@@ -55,17 +55,17 @@
       margin-bottom: 20px;
     }
 
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background-color: #003366;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      flex: 1 1 45%;
-      min-width: 120px;
-    }
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #003366;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 1 1 45%;
+  min-width: 120px;
+}
 
     .resumen {
       background: #f0f4f8;
@@ -112,12 +112,13 @@
   <div class="contenedor">
     <h1>Consulta de Factura por UUID</h1>
     <div class="campo">
-      <input type="text" id="qrInput" placeholder="📷 QR SAT (Pega aquí el contenido)" oninput="extraerUUID()">
-    </div>
+<input type="text" id="qrInput" placeholder="📷 QR SAT (Pega aquí el contenido)">
+      </div>
     <div class="campo">
       <input type="text" id="uuidInput" placeholder="🔍 UUID de la factura (36 caracteres)">
     </div>
     <div class="acciones">
+  <button onclick="extraerUUID()">📤 Extraer UUID</button>   
       <button onclick="buscarFactura()">Buscar</button>
       <button id="editarBtn" style="display:none;">✏️ Editar</button>
       <button onclick="limpiarCampos()">Limpiar</button>
