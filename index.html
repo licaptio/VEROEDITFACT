@@ -135,42 +135,43 @@
     let uuidActual = '';
 
 function extraerUUID() {
-  let texto = document.getElementById('qrInput').value.trim();
+  const qrInput = document.getElementById('qrInput');
+  const textoOriginal = qrInput.value.trim();
 
-  // Normaliza símbolos confusos a guiones
-  texto = texto
-    .replace(/[¡!|¿?']/g, '-')   // Reemplaza símbolos raros por guiones
-    .replace(/[^a-zA-Z0-9\-]/g, ' ')  // Elimina lo que no sea parte del UUID
-    .replace(/\s+/g, ' '); // Normaliza espacios
-
-  // Buscar un UUID aunque esté incompleto (32 caracteres con guiones)
-  const posible = texto.match(/[a-fA-F0-9\-]{30,40}/g);
-
-  if (posible && posible.length > 0) {
-    for (let cadena of posible) {
-      const limpio = cadena.replace(/[^a-fA-F0-9]/g, '');
-      if (limpio.length === 32) {
-        // reconstruir como UUID estándar
-        const reconstruido = [
-          limpio.substring(0, 8),
-          limpio.substring(8, 12),
-          limpio.substring(12, 16),
-          limpio.substring(16, 20),
-          limpio.substring(20)
-        ].join('-');
-
-        document.getElementById('uuidInput').value = reconstruido;
-        return;
-      }
-    }
+  if (textoOriginal.length < 15) {
+    // Si el texto es muy corto, no buscamos todavía
+    document.getElementById('uuidInput').value = '';
+    return;
   }
 
-  // Si no encuentra nada válido
-  document.getElementById('uuidInput').value = '';
-  alert("❌ No se detectó un UUID válido. Verifica si el QR está dañado.");
+  // Normaliza caracteres raros
+  let texto = textoOriginal
+    .replace(/[¡!|¿?']/g, '-')   // Reemplaza símbolos confusos por guiones
+    .replace(/[^a-zA-Z0-9\-]/g, ' ')  // Elimina símbolos no válidos
+    .replace(/\s+/g, ' '); // Compacta espacios
+
+  // Busca UUID válido o secuencia de 32 caracteres
+  const candidato = texto.match(/[a-fA-F0-9]{32}/);
+  if (candidato) {
+    const limpio = candidato[0];
+    const reconstruido = [
+      limpio.substring(0, 8),
+      limpio.substring(8, 12),
+      limpio.substring(12, 16),
+      limpio.substring(16, 20),
+      limpio.substring(20)
+    ].join('-');
+
+    document.getElementById('uuidInput').value = reconstruido;
+    return;
+  }
+
+  // Si se ingresó bastante texto pero no se encontró UUID
+  if (textoOriginal.length > 20) {
+    document.getElementById('uuidInput').value = '';
+    alert("❌ No se detectó un UUID válido. Verifica si el QR está dañado.");
+  }
 }
-
-
 
     const formatter = new Intl.NumberFormat('es-MX', {
       style: 'currency',
