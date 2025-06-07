@@ -135,13 +135,39 @@
     let uuidActual = '';
 
 function extraerUUID() {
-  const texto = document.getElementById('qrInput').value.trim();
+  let texto = document.getElementById('qrInput').value.trim();
 
-  // Buscar un UUID válido en cualquier parte del texto
-  const match = texto.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
-  if (match) {
-    document.getElementById('uuidInput').value = match[0];
+  // Normaliza símbolos confusos a guiones
+  texto = texto
+    .replace(/[¡!|¿?']/g, '-')   // Reemplaza símbolos raros por guiones
+    .replace(/[^a-zA-Z0-9\-]/g, ' ')  // Elimina lo que no sea parte del UUID
+    .replace(/\s+/g, ' '); // Normaliza espacios
+
+  // Buscar un UUID aunque esté incompleto (32 caracteres con guiones)
+  const posible = texto.match(/[a-fA-F0-9\-]{30,40}/g);
+
+  if (posible && posible.length > 0) {
+    for (let cadena of posible) {
+      const limpio = cadena.replace(/[^a-fA-F0-9]/g, '');
+      if (limpio.length === 32) {
+        // reconstruir como UUID estándar
+        const reconstruido = [
+          limpio.substring(0, 8),
+          limpio.substring(8, 12),
+          limpio.substring(12, 16),
+          limpio.substring(16, 20),
+          limpio.substring(20)
+        ].join('-');
+
+        document.getElementById('uuidInput').value = reconstruido;
+        return;
+      }
+    }
   }
+
+  // Si no encuentra nada válido
+  document.getElementById('uuidInput').value = '';
+  alert("❌ No se detectó un UUID válido. Verifica si el QR está dañado.");
 }
 
 
