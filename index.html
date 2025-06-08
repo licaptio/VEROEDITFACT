@@ -256,12 +256,17 @@ contenedor.innerHTML = `
     <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
     <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
     <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+    ${f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0
+      ? `<p><strong>📁 Documentos:</strong> ${f.fotos.map((url,i) => `<a href="${url}" target="_blank">📷 Foto ${i+1}</a>`).join(' ')}</p>`
+      : ''
+    }
   </div>
   <div class="concepto-separado">
     <p><strong>Concepto:</strong></p>
     <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
   </div>
 `;
+
 
 
 
