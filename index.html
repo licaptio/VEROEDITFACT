@@ -128,20 +128,36 @@ overflow: auto;
 #resumenUUID {
   display: flex;
   gap: 20px;
-  flex-wrap: wrap;  /* para que se adapte en pantallas pequeñas */
+  flex-wrap: wrap;
   justify-content: flex-start;
 }
 
 .datos-columna {
-  flex: 1 1 45%;  /* cada columna ocupa aprox 45% */
+  flex: 1 1 45%;
   box-sizing: border-box;
 }
 
-/* Opcional: que la columna derecha tenga scroll en el concepto si es muy largo */
-.derecha .concepto-box {
-  max-height: 350px;
-  overflow: auto;
+/* nuevo bloque concepto separado ocupa todo el ancho */
+.concepto-separado {
+  width: 100%;
+  margin-top: 20px;
 }
+
+/* ya tienes .concepto-box, solo ajustar overflow */
+.concepto-box {
+  background-color: #eef3f7;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  max-height: 350px;
+  min-height: 60px;
+  width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
 
   </style>
 </head>
@@ -241,10 +257,13 @@ contenedor.innerHTML = `
     <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
     <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
     <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+  </div>
+  <div class="concepto-separado">
     <p><strong>Concepto:</strong></p>
     <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
   </div>
 `;
+
 
 
       if (f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0) {
