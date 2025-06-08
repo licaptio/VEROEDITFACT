@@ -266,17 +266,6 @@ contenedor.innerHTML = `
     <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
   </div>
 `;
-
-
-
-
-      if (f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0) {
-        contenedor.innerHTML += `<p><strong>📁 Documentos:</strong></p>`;
-        f.fotos.forEach((url, i) => {
-          contenedor.innerHTML += `<p><a href="${url}" target="_blank">📷 Foto ${i + 1}</a></p>`;
-        });
-      }
-
       editarBtn.style.display = 'inline-block';
       editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
     }
