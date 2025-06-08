@@ -125,6 +125,24 @@ overflow: auto;
       border-radius: 6px;
       overflow-x: auto;
     }
+#resumenUUID {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;  /* para que se adapte en pantallas pequeñas */
+  justify-content: flex-start;
+}
+
+.datos-columna {
+  flex: 1 1 45%;  /* cada columna ocupa aprox 45% */
+  box-sizing: border-box;
+}
+
+/* Opcional: que la columna derecha tenga scroll en el concepto si es muy largo */
+.derecha .concepto-box {
+  max-height: 350px;
+  overflow: auto;
+}
+
   </style>
 </head>
 <body>
@@ -212,17 +230,22 @@ function extraerUUID() {
       }
 
       const f = data[0];
-      contenedor.innerHTML = `
-        <p><strong>UUID:</strong> ${f.uuid}</p>
-        <p><strong>Factura:</strong> ${f.factura}</p>
-        <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
-        <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
-        <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
-        <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
-        <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
-        <p><strong>Concepto:</strong></p>
-        <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
-      `;
+contenedor.innerHTML = `
+  <div class="datos-columna izquierda">
+    <p><strong>UUID:</strong> ${f.uuid}</p>
+    <p><strong>Factura:</strong> ${f.factura}</p>
+    <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
+    <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
+  </div>
+  <div class="datos-columna derecha">
+    <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
+    <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
+    <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+    <p><strong>Concepto:</strong></p>
+    <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
+  </div>
+`;
+
 
       if (f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0) {
         contenedor.innerHTML += `<p><strong>📁 Documentos:</strong></p>`;
