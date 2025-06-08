@@ -48,10 +48,8 @@
     }
 
 .acciones {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-start; /* o center si quieres centrado */
-  flex-wrap: nowrap; /* evitar que se rompa la fila */
+  flex-wrap: nowrap;  /* evitar que se vayan a otra línea */
+  justify-content: flex-start;  /* o center, según prefieras */
 }
 
 .acciones button {
@@ -74,17 +72,11 @@
 }
 
 
-    button {
-      padding: 12px 20px;
-      font-size: 16px;
-      background-color: #003366;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      flex: 1 1 45%;
-      min-width: 120px;
-    }
+button {
+  width: 10ch;        /* ancho fijo */
+  padding: 12px 0;    /* quitar padding horizontal para controlar ancho */
+  flex-shrink: 0;     /* evitar que el botón se reduzca */
+}
 
     .resumen {
       background: #f0f4f8;
