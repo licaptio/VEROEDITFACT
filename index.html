@@ -110,15 +110,11 @@ button {
   max-height: 350px;
   min-height: 60px;
   width: 100%;
-  overflow-x: auto;
-  overflow-y: auto;
-
-  white-space: nowrap !important; /* fuerza que no se rompa */
-  overflow-wrap: normal !important; /* evita que se parta */
-  word-break: normal !important; /* evita que se parta */
-  word-wrap: normal !important; /* evita que se parta */
+  overflow: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
 }
-
 
 
     pre {
