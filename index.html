@@ -263,7 +263,11 @@ contenedor.innerHTML = `
   </div>
   <div class="concepto-separado">
     <p><strong>Concepto:</strong></p>
-    <pre class="concepto-box">${(f.concepto || 'Sin concepto').replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')}</pre>
+<pre class="concepto-box">${
+  (f.concepto || 'Sin concepto')
+    .replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')
+    .replace(/BaseImporte:\s*\[[^\]]*\]\s*\|?/g, '')
+}</pre>
   </div>
 `;
       editarBtn.style.display = 'inline-block';
