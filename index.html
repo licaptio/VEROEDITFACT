@@ -15,11 +15,11 @@
     }
 
     .contenedor {
-      max-width: 700px;
+      max-width: 1000px;
       margin: auto;
       background-color: #fff;
       padding: 20px;
-      border-radius: 12px;  
+      border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
@@ -55,17 +55,17 @@
       margin-bottom: 20px;
     }
 
-button {
-  padding: 12px 20px;
-  font-size: 16px;
-  background-color: #003366;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  flex: 1 1 45%;
-  min-width: 120px;
-}
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #003366;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 1 1 45%;
+      min-width: 120px;
+    }
 
     .resumen {
       background: #f0f4f8;
@@ -87,11 +87,11 @@ button {
   padding: 10px;
   font-size: 13px;
   border-radius: 6px;
-  max-height: 300px;
+  max-height: 400px;
   min-height: 60px;
   width: 100%;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
   word-break: break-word;
@@ -112,13 +112,12 @@ button {
   <div class="contenedor">
     <h1>Consulta de Factura por UUID</h1>
     <div class="campo">
-<input type="text" id="qrInput" placeholder="📷 QR SAT (Pega aquí el contenido)">
-      </div>
+      <input type="text" id="qrInput" placeholder="📷 QR SAT (Pega aquí el contenido)" oninput="extraerUUID()">
+    </div>
     <div class="campo">
       <input type="text" id="uuidInput" placeholder="🔍 UUID de la factura (36 caracteres)">
     </div>
     <div class="acciones">
-  <button onclick="extraerUUID()">📤 Extraer UUID</button>   
       <button onclick="buscarFactura()">Buscar</button>
       <button id="editarBtn" style="display:none;">✏️ Editar</button>
       <button onclick="limpiarCampos()">Limpiar</button>
@@ -136,43 +135,32 @@ button {
     let uuidActual = '';
 
 function extraerUUID() {
-  const qrInput = document.getElementById('qrInput');
-  const textoOriginal = qrInput.value.trim();
+  const texto = document.getElementById('qrInput').value.trim();
 
-  if (textoOriginal.length < 15) {
-    // Si el texto es muy corto, no buscamos todavía
-    document.getElementById('uuidInput').value = '';
+  // ✅ Caso 1: URL correcta con ?id=
+  const match = texto.match(/[?&]id=([a-f0-9-]{36})/i);
+  if (match) {
+    document.getElementById('uuidInput').value = match[1];
     return;
   }
 
-  // Normaliza caracteres raros
-  let texto = textoOriginal
-    .replace(/[¡!|¿?']/g, '-')   // Reemplaza símbolos confusos por guiones
-    .replace(/[^a-zA-Z0-9\-]/g, ' ')  // Elimina símbolos no válidos
-    .replace(/\s+/g, ' '); // Compacta espacios
-
-  // Busca UUID válido o secuencia de 32 caracteres
-  const candidato = texto.match(/[a-fA-F0-9]{32}/);
-  if (candidato) {
-    const limpio = candidato[0];
-    const reconstruido = [
-      limpio.substring(0, 8),
-      limpio.substring(8, 12),
-      limpio.substring(12, 16),
-      limpio.substring(16, 20),
-      limpio.substring(20)
-    ].join('-');
-
-    document.getElementById('uuidInput').value = reconstruido;
+  // ✅ Caso 2: UUID directo
+  const directo = texto.match(/^([a-f0-9-]{36})$/i);
+  if (directo) {
+    document.getElementById('uuidInput').value = directo[1];
     return;
   }
 
-  // Si se ingresó bastante texto pero no se encontró UUID
-  if (textoOriginal.length > 20) {
-    document.getElementById('uuidInput').value = '';
-    alert("❌ No se detectó un UUID válido. Verifica si el QR está dañado.");
+  // ✅ Caso 3: Escáner PC con delimitadores raros (¡ y ')
+  const adaptado = texto.replaceAll("¡", "=").replaceAll("'", "-");
+  const alterno = adaptado.match(/[?&/]id=([a-f0-9-]{36})/i);
+  if (alterno) {
+    document.getElementById('uuidInput').value = alterno[1];
+    return;
   }
 }
+
+
 
     const formatter = new Intl.NumberFormat('es-MX', {
       style: 'currency',
