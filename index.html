@@ -30,40 +30,49 @@
       margin-bottom: 20px;
     }
 
-    .campo {
-      margin-bottom: 16px;
-    }
+.campo {
+  margin-bottom: 16px;
+  max-width: 42ch;      /* ancho fijo aproximado a 42 caracteres */
+  margin-left: auto;    /* centrar horizontalmente */
+  margin-right: auto;
+}
 
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
+input[type="text"] {
+  width: 100%;          /* para que ocupe todo el max-width del contenedor .campo */
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
 
     input::placeholder {
       color: #999;
     }
 
 .acciones {
-  flex-wrap: nowrap;  /* evitar que se vayan a otra línea */
-  justify-content: flex-start;  /* o center, según prefieras */
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  justify-content: center;
+  margin-bottom: 20px;
+  max-width: 42ch; /* limitar ancho del contenedor botones */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .acciones button {
-  width: 10ch;           /* ancho fijo para ~10 caracteres */
-  padding: 12px 0;       /* solo padding vertical para ajustar altura */
+  width: 10ch;
+  padding: 12px 0;
   font-size: 16px;
-  border-radius: 8px;
-  border: none;
   background-color: #003366;
-  color: white;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
   text-align: center;
-  white-space: nowrap;   /* que el texto no se divida */
-  flex-shrink: 0;        /* que no se reduzca el ancho */
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: background-color 0.3s ease;
 }
 
