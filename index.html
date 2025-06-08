@@ -112,9 +112,11 @@ button {
   width: 100%;
   overflow-x: auto;
   overflow-y: auto;
-  white-space: nowrap;    /* Cambiado de pre-wrap a nowrap */
-  word-wrap: normal;      /* Quitar break-word */
-  word-break: normal;     /* Quitar break-word */
+
+  white-space: nowrap !important; /* fuerza que no se rompa */
+  overflow-wrap: normal !important; /* evita que se parta */
+  word-break: normal !important; /* evita que se parta */
+  word-wrap: normal !important; /* evita que se parta */
 }
 
 
