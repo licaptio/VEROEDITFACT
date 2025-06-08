@@ -107,13 +107,14 @@ button {
   padding: 10px;
   font-size: 13px;
   border-radius: 6px;
-  max-height: 400px;
+  max-height: 350px;
   min-height: 60px;
   width: 100%;
-overflow: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  word-break: break-word;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: nowrap;    /* Cambiado de pre-wrap a nowrap */
+  word-wrap: normal;      /* Quitar break-word */
+  word-break: normal;     /* Quitar break-word */
 }
 
 
