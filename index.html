@@ -47,13 +47,32 @@
       color: #999;
     }
 
-    .acciones {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
+.acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start; /* o center si quieres centrado */
+  flex-wrap: nowrap; /* evitar que se rompa la fila */
+}
+
+.acciones button {
+  width: 10ch;           /* ancho fijo para ~10 caracteres */
+  padding: 12px 0;       /* solo padding vertical para ajustar altura */
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #003366;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;   /* que el texto no se divida */
+  flex-shrink: 0;        /* que no se reduzca el ancho */
+  transition: background-color 0.3s ease;
+}
+
+.acciones button:hover {
+  background-color: #0055aa;
+}
+
 
     button {
       padding: 12px 20px;
