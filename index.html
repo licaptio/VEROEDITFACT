@@ -136,28 +136,38 @@ button {
   box-sizing: border-box;
 }
 
-/* nuevo bloque concepto separado ocupa todo el ancho */
+/* Tarjeta más destacada para el concepto */
 .concepto-separado {
   width: 100%;
-  margin-top: 20px;
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #ccddee;
+  border-left: 4px solid #0055aa;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 85, 170, 0.1);
 }
 
-/* ya tienes .concepto-box, solo ajustar overflow */
+.concepto-separado p {
+  margin-top: 0;
+  font-weight: bold;
+  color: #003366;
+}
+
+/* Caja de texto para el concepto formateado */
 .concepto-box {
-  background-color: #eef3f7;
-  padding: 10px;
-  font-size: 13px;
-  border-radius: 6px;
-  max-height: 350px;
-  min-height: 60px;
-  width: 100%;
+  background-color: #f2f7fb;
+  padding: 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  max-height: 400px;
+  min-height: 80px;
   overflow: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
   word-break: break-word;
+  border: 1px dashed #aaccee;
 }
-
-
   </style>
 </head>
 <body>
@@ -219,61 +229,74 @@ function extraerUUID() {
       currency: 'MXN'
     });
 
-    async function buscarFactura() {
-      let uuid = document.getElementById('uuidInput').value.trim();
-      uuidActual = uuid;
+async function buscarFactura() {
+  let uuid = document.getElementById('uuidInput').value.trim();
+  uuidActual = uuid;
 
-      const contenedor = document.getElementById('resumenUUID');
-      const editarBtn = document.getElementById('editarBtn');
-      contenedor.innerHTML = '';
-      editarBtn.style.display = 'none';
+  const contenedor = document.getElementById('resumenUUID');
+  const editarBtn = document.getElementById('editarBtn');
+  contenedor.innerHTML = '';
+  editarBtn.style.display = 'none';
 
-      if (!uuid) {
-        contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
-        return;
+  if (!uuid) {
+    contenedor.innerHTML = `<p><strong>❌ Escribe un UUID para buscar.</strong></p>`;
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('deuda_pddprotec25')
+    .select('*')
+    .eq('uuid', uuid)
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
+    return;
+  }
+
+  const f = data[0];
+
+  // ✅ Procesar el campo concepto y filtrar líneas relevantes
+  const conceptoOriginal = f.concepto || 'Sin concepto';
+  const lineasLimpias = conceptoOriginal.split('|')
+    .map(parte => parte.trim())
+    .filter(texto =>
+      texto.startsWith("ClaveProdServ:") ||
+      texto.startsWith("ClaveUnidad:") ||
+      texto.startsWith("Descripción:") ||
+      texto.startsWith("ValorUnitario:") ||
+      texto.startsWith("Cantidad:") ||
+      texto.startsWith("Tasa:") ||
+      texto.match(/^Importe:\s*\d/)
+    );
+  const conceptoFinal = lineasLimpias.join('\n');
+
+  // ✅ Mostrar todos los datos con sección de concepto separada
+  contenedor.innerHTML = `
+    <div class="datos-columna izquierda">
+      <p><strong>UUID:</strong> ${f.uuid}</p>
+      <p><strong>Factura:</strong> ${f.factura}</p>
+      <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
+      <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
+    </div>
+    <div class="datos-columna derecha">
+      <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
+      <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
+      <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
+      ${f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0
+        ? `<p><strong>📁 Documentos:</strong> ${f.fotos.map((url,i) => `<a href="${url}" target="_blank">📷 Foto ${i+1}</a>`).join(' ')}</p>`
+        : ''
       }
+    </div>
+    <div class="concepto-separado">
+      <p><strong>Concepto:</strong></p>
+      <pre class="concepto-box">${conceptoFinal}</pre>
+    </div>
+  `;
 
-      const { data, error } = await supabase
-        .from('deuda_pddprotec25')
-        .select('*')
-        .eq('uuid', uuid)
-        .limit(1);
-
-      if (error || !data || data.length === 0) {
-        contenedor.innerHTML = `<p><strong>⚠️ No se encontró una factura con ese UUID.</strong></p>`;
-        return;
-      }
-
-      const f = data[0];
-contenedor.innerHTML = `
-  <div class="datos-columna izquierda">
-    <p><strong>UUID:</strong> ${f.uuid}</p>
-    <p><strong>Factura:</strong> ${f.factura}</p>
-    <p><strong>Razón Social Emisor:</strong> ${f.razon_social_emisor}</p>
-    <p><strong>Importe Total:</strong> ${formatter.format(f.total)}</p>
-  </div>
-  <div class="datos-columna derecha">
-    <p><strong>Factura Física Disponible:</strong> ${f.factura_fisicamente || 'N/D'}</p>
-    <p><strong>Factura Pagada:</strong> ${f.factura_pagada || 'N/D'}</p>
-    <p><strong>Comentario Factura Física:</strong> ${f.comentario_factura_fisica || 'N/D'}</p>
-    ${f.fotos && Array.isArray(f.fotos) && f.fotos.length > 0
-      ? `<p><strong>📁 Documentos:</strong> ${f.fotos.map((url,i) => `<a href="${url}" target="_blank">📷 Foto ${i+1}</a>`).join(' ')}</p>`
-      : ''
-    }
-  </div>
-  <div class="concepto-separado">
-    <p><strong>Concepto:</strong></p>
-<pre class="concepto-box">${
-  (f.concepto || 'Sin concepto')
-    .replace(/ ?ClaveProdServ:/g, '\nClaveProdServ:')
-    .replace(/BaseImporte:\s*\[[^\]]*\]\s*\|?/g, '')
-}</pre>
-  </div>
-`;
-      editarBtn.style.display = 'inline-block';
-      editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
-    }
-
+  editarBtn.style.display = 'inline-block';
+  editarBtn.onclick = () => window.location.href = 'editar-factura.html?uuid=' + uuidActual;
+}
     function limpiarCampos() {
       document.getElementById('qrInput').value = '';
       document.getElementById('uuidInput').value = '';
