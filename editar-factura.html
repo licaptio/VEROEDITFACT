@@ -268,15 +268,14 @@ btn.onclick = async () => {
   fotosSeleccionadas.forEach((foto, index) => {
     const reader = new FileReader();
     reader.onload = e => {
-      const cont = document.createElement("div");
-      cont.style.position = "relative";
-      cont.style.display = "inline-block";
+const cont = document.createElement("div");
+cont.style.position = "relative";
+cont.style.display = "inline-block";
 
-if (url.toLowerCase().endsWith(".pdf")) {
-  const link = document.createElement("a");
-  link.href = url;
-  link.target = "_blank";
-  link.textContent = "📄 Ver PDF";
+// Determina si es PDF por extensión
+if (foto.name.toLowerCase().endsWith(".pdf")) {
+  const link = document.createElement("span");
+  link.textContent = "📄 PDF seleccionado";
   link.style.display = "inline-block";
   link.style.padding = "6px";
   link.style.background = "#eee";
@@ -285,7 +284,7 @@ if (url.toLowerCase().endsWith(".pdf")) {
   cont.appendChild(link);
 } else {
   const img = document.createElement("img");
-  img.src = url;
+  img.src = e.target.result;
   img.style.maxWidth = "100px";
   img.style.border = "1px solid #ccc";
   img.style.borderRadius = "6px";
@@ -293,24 +292,24 @@ if (url.toLowerCase().endsWith(".pdf")) {
   cont.appendChild(img);
 }
 
-      const btn = document.createElement("span");
-      btn.innerHTML = "❌";
-      btn.style.position = "absolute";
-      btn.style.top = "-8px";
-      btn.style.right = "-8px";
-      btn.style.background = "red";
-      btn.style.color = "white";
-      btn.style.borderRadius = "50%";
-      btn.style.cursor = "pointer";
-      btn.style.padding = "2px 6px";
-      btn.onclick = () => {
-        fotosSeleccionadas.splice(index, 1); // eliminar archivo
-        mostrarFotosTemporal();
-      };
+const btn = document.createElement("span");
+btn.innerHTML = "❌";
+btn.style.position = "absolute";
+btn.style.top = "-8px";
+btn.style.right = "-8px";
+btn.style.background = "red";
+btn.style.color = "white";
+btn.style.borderRadius = "50%";
+btn.style.cursor = "pointer";
+btn.style.padding = "2px 6px";
+btn.onclick = () => {
+  fotosSeleccionadas.splice(index, 1);
+  mostrarFotosTemporal();
+};
 
-      cont.appendChild(img);
-      cont.appendChild(btn);
-      contenedor.appendChild(cont);
+cont.appendChild(btn);
+contenedor.appendChild(cont);
+
     };
     reader.readAsDataURL(foto);
   });
