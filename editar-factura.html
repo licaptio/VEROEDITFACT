@@ -160,7 +160,7 @@
     <textarea id="comentario_factura_fisica" rows="3"></textarea>
 
     <label>Agregar foto</label>
-    <input type="file" id="fotos" />
+<input type="file" id="fotos" accept=".jpg,.jpeg,.png,.pdf" />
     <div id="preview" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
 
     <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
@@ -272,12 +272,26 @@ btn.onclick = async () => {
       cont.style.position = "relative";
       cont.style.display = "inline-block";
 
-      const img = document.createElement("img");
-      img.src = e.target.result;
-      img.style.maxWidth = "100px";
-      img.style.border = "1px solid #ccc";
-      img.style.borderRadius = "6px";
-      img.style.marginRight = "5px";
+if (url.toLowerCase().endsWith(".pdf")) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.textContent = "📄 Ver PDF";
+  link.style.display = "inline-block";
+  link.style.padding = "6px";
+  link.style.background = "#eee";
+  link.style.borderRadius = "4px";
+  link.style.color = "#003366";
+  cont.appendChild(link);
+} else {
+  const img = document.createElement("img");
+  img.src = url;
+  img.style.maxWidth = "100px";
+  img.style.border = "1px solid #ccc";
+  img.style.borderRadius = "6px";
+  img.style.marginRight = "5px";
+  cont.appendChild(img);
+}
 
       const btn = document.createElement("span");
       btn.innerHTML = "❌";
@@ -311,7 +325,7 @@ const nuevasUrls = [];
 
 for (let i = 0; i < fotosSeleccionadas.length; i++) {
   const archivo = fotosSeleccionadas[i];
-  if (!archivo || !archivo.type.startsWith('image/')) continue;
+  if (!archivo) continue;
   const extension = archivo.name.split('.').pop().toLowerCase();
 const nombreSeguro = `public/${uuid}-${i}-${Date.now()}`.replace(/[^a-zA-Z0-9/_-]/g, "_") + "." + extension;
    console.log("Subiendo a:", nombreSeguro); // <-- ESTA LÍNEA
