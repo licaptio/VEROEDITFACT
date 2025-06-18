@@ -323,23 +323,24 @@ async function guardarCambios() {
   const bucket = "fotos-facturas";
   const nuevasUrls = [];
 
+  // Validación mínima
   if (fotosSeleccionadas.length === 0 && urlsFotos.length === 0) {
     alert("Agrega al menos un archivo (imagen o PDF) antes de guardar.");
     return;
   }
 
+  // Subir cada archivo
   for (let i = 0; i < fotosSeleccionadas.length; i++) {
     const archivo = fotosSeleccionadas[i];
-    if (!archivo) continue;
-
-    console.log("Archivo a subir:", archivo.name, archivo.size, archivo.type);
-    if (archivo.size === 0) {
-      alert(`❌ El archivo "${archivo.name}" está vacío y no se puede subir.`);
+    if (!archivo || archivo.size === 0) {
+      console.warn("Archivo vacío o inválido:", archivo?.name);
       continue;
     }
 
     const extension = archivo.name.split('.').pop().toLowerCase();
     const nombreSeguro = `${uuid}-${i}-${Date.now()}.${extension}`;
+
+    console.log("Subiendo a:", nombreSeguro, "tipo:", archivo.type, "tamaño:", archivo.size);
 
     const { error: uploadError } = await supabase.storage
       .from(bucket)
@@ -349,12 +350,14 @@ async function guardarCambios() {
         contentType: archivo.type
       });
 
-    if (!uploadError) {
-      const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(nombreSeguro);
-      nuevasUrls.push(publicUrl.publicUrl);
-    } else {
-      console.error("❌ Error al subir:", uploadError);
+    if (uploadError) {
+      console.error("❌ Error al subir:", uploadError.message);
+      alert("❌ No se pudo subir uno de los archivos.");
+      return;
     }
+
+    const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(nombreSeguro);
+    nuevasUrls.push(publicUrl.publicUrl);
   }
 
   const fotosFinales = [...urlsFotos, ...nuevasUrls];
