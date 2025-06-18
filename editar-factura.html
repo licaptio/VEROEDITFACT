@@ -317,55 +317,70 @@ contenedor.appendChild(cont);
 }
 
 
-    async function guardarCambios() {
-      const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
-      const fisica = document.getElementById('factura_fisicamente').value;
-      const bucket = "fotos-facturas";
-const nuevasUrls = [];
-if (fotosSeleccionadas.length === 0 && urlsFotos.length === 0) {
-  alert("Agrega al menos un archivo (imagen o PDF) antes de guardar.");
-  return;
-}
+async function guardarCambios() {
+  const comentario = document.getElementById('comentario_factura_fisica').value.trim() || 'SIN COMENTARIOS';
+  const fisica = document.getElementById('factura_fisicamente').value;
+  const bucket = "fotos-facturas";
+  const nuevasUrls = [];
 
-for (let i = 0; i < fotosSeleccionadas.length; i++) {
-  const archivo = fotosSeleccionadas[i];
-  if (!archivo) continue;
-  const extension = archivo.name.split('.').pop().toLowerCase();
-const nombreSeguro = `${uuid}-${i}-${Date.now()}.${extension}`;
-   console.log("Subiendo a:", nombreSeguro);
-  const { error: uploadError } = await supabase.storage
-    .from("fotos-facturas")
-    .upload(nombreSeguro, archivo, {
-      cacheControl: '3600',
-      upsert: true,
-      contentType: archivo.type
-    });
+  if (fotosSeleccionadas.length === 0 && urlsFotos.length === 0) {
+    alert("Agrega al menos un archivo (imagen o PDF) antes de guardar.");
+    return;
+  }
 
-  if (!uploadError) {
-    const { data: publicUrl } = supabase.storage.from("fotos-facturas").getPublicUrl(nombreSeguro);
-    nuevasUrls.push(publicUrl.publicUrl);
+  for (let i = 0; i < fotosSeleccionadas.length; i++) {
+    const archivo = fotosSeleccionadas[i];
+    if (!archivo) continue;
+
+    console.log("Archivo a subir:", archivo.name, archivo.size, archivo.type);
+    if (archivo.size === 0) {
+      alert(`❌ El archivo "${archivo.name}" está vacío y no se puede subir.`);
+      continue;
+    }
+
+    const extension = archivo.name.split('.').pop().toLowerCase();
+    const nombreSeguro = `${uuid}-${i}-${Date.now()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(nombreSeguro, archivo, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: archivo.type
+      });
+
+    if (!uploadError) {
+      const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(nombreSeguro);
+      nuevasUrls.push(publicUrl.publicUrl);
+    } else {
+      console.error("❌ Error al subir:", uploadError);
+    }
+  }
+
+  const fotosFinales = [...urlsFotos, ...nuevasUrls];
+  const updates = {
+    factura_fisicamente: fisica,
+    comentario_factura_fisica: comentario,
+    fotos: fotosFinales
+  };
+
+  console.log("Actualizando con:", updates, "para uuid:", uuid);
+
+  const { error } = await supabase
+    .from('deuda_pddprotec25')
+    .update(updates)
+    .eq('uuid', uuid);
+
+  const mensaje = document.getElementById('mensaje');
+  if (error) {
+    mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
+  } else {
+    mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 2000);
   }
 }
-
-// Mezcla las fotos anteriores que no se eliminaron con las nuevas
-const fotosFinales = [...urlsFotos, ...nuevasUrls];
-
-
-const updates = { factura_fisicamente: fisica, comentario_factura_fisica: comentario, fotos: fotosFinales };
-
-console.log("Actualizando con:", updates, "para uuid:", uuid);
-      const { error } = await supabase.from('deuda_pddprotec25').update(updates).eq('uuid', uuid);
-
-      const mensaje = document.getElementById('mensaje');
-      if (error) {
-        mensaje.innerHTML = '<p style="color:red;">❌ Error al guardar los cambios.</p>';
-      } else {
-        mensaje.innerHTML = '<p style="color:green;">✅ Cambios guardados correctamente.</p>';
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 2000);
-      }
-    }
 
     cargarDatos();
   document.getElementById("fotos").addEventListener("change", agregarFoto);
