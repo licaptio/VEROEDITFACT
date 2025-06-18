@@ -326,7 +326,7 @@ for (let i = 0; i < fotosSeleccionadas.length; i++) {
   const archivo = fotosSeleccionadas[i];
   if (!archivo) continue;
   const extension = archivo.name.split('.').pop().toLowerCase();
-const nombreSeguro = `public/${uuid}-${i}-${Date.now()}`.replace(/[^a-zA-Z0-9/_-]/g, "_") + "." + extension;
+const nombreSeguro = `${uuid}-${i}-${Date.now()}.${extension}`;
    console.log("Subiendo a:", nombreSeguro); // <-- ESTA LÍNEA
   const { error: uploadError } = await supabase.storage
     .from("fotos-facturas")
