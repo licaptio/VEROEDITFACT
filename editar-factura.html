@@ -332,7 +332,7 @@ for (let i = 0; i < fotosSeleccionadas.length; i++) {
   if (!archivo) continue;
   const extension = archivo.name.split('.').pop().toLowerCase();
 const nombreSeguro = `${uuid}-${i}-${Date.now()}.${extension}`;
-   console.log("Subiendo a:", nombreSeguro); // <-- ESTA LÍNEA
+   console.log("Subiendo a:", nombreSeguro);
   const { error: uploadError } = await supabase.storage
     .from("fotos-facturas")
     .upload(nombreSeguro, archivo, {
