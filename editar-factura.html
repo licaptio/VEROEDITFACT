@@ -160,7 +160,7 @@
     <textarea id="comentario_factura_fisica" rows="3"></textarea>
 
     <label>Agregar foto</label>
-<input type="file" id="fotos" accept=".jpg,.jpeg,.png,.pdf" />
+<input type="file" id="fotos" accept=".jpg,.jpeg,.png,.pdf" multiple />
     <div id="preview" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
 
     <button class="guardar" onclick="guardarCambios()">Guardar Cambios</button>
@@ -189,8 +189,9 @@ function agregarFoto() {
   const archivos = input.files;
   if (!archivos.length) return;
 
-  const archivo = archivos[0];
+for (const archivo of archivos) {
   fotosSeleccionadas.push(archivo);
+}
   mostrarFotosTemporal();
   input.value = "";
 }
@@ -321,6 +322,10 @@ contenedor.appendChild(cont);
       const fisica = document.getElementById('factura_fisicamente').value;
       const bucket = "fotos-facturas";
 const nuevasUrls = [];
+if (fotosSeleccionadas.length === 0 && urlsFotos.length === 0) {
+  alert("Agrega al menos un archivo (imagen o PDF) antes de guardar.");
+  return;
+}
 
 for (let i = 0; i < fotosSeleccionadas.length; i++) {
   const archivo = fotosSeleccionadas[i];
