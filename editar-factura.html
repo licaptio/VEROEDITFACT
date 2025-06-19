@@ -323,13 +323,7 @@ async function guardarCambios() {
   const bucket = "fotos-facturas";
   const nuevasUrls = [];
 
-  // Validación mínima
-  if (fotosSeleccionadas.length === 0 && urlsFotos.length === 0) {
-    alert("Agrega al menos un archivo (imagen o PDF) antes de guardar.");
-    return;
-  }
-
-  // Subir cada archivo
+    // Subir cada archivo
   for (let i = 0; i < fotosSeleccionadas.length; i++) {
     const archivo = fotosSeleccionadas[i];
     if (!archivo || archivo.size === 0) {
